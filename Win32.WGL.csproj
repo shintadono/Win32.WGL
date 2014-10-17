@@ -97,7 +97,7 @@
       <Project>{c591df17-5ac8-4ae0-af18-cf752e4e7d53}</Project>
       <Name>Win32</Name>
     </ProjectReference>
-    <ProjectReference Include="..\OpenGL.Core\OpenGL.Core.csproj">
+    <ProjectReference Include="..\..\Code\Libraries3rdParty\OpenGL.Core\OpenGL.Core.csproj">
       <Project>{aef49083-d5a5-4e78-a828-c710e5aa633f}</Project>
       <Name>OpenGL.Core</Name>
     </ProjectReference>
@@ -107,6 +107,10 @@
       <DependentUpon>OpenGLControl.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LICENSE" />
+    <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
