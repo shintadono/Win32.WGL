@@ -97,7 +97,7 @@
       <Project>{c591df17-5ac8-4ae0-af18-cf752e4e7d53}</Project>
       <Name>Win32</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Code\Libraries3rdParty\OpenGL.Core\OpenGL.Core.csproj">
+    <ProjectReference Include="..\OpenGL.Core\OpenGL.Core.csproj">
       <Project>{aef49083-d5a5-4e78-a828-c710e5aa633f}</Project>
       <Name>OpenGL.Core</Name>
     </ProjectReference>
