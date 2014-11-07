@@ -53,47 +53,25 @@ namespace Win32.WGL
 	public partial class OpenGLControl : UserControl
 	{
 		/// <summary>
-		/// Handler for OpenGLControl <see cref="Error"/> events.
-		/// </summary>
-		/// <param name="sender">The control the event was raised for.</param>
-		/// <param name="e">A <see cref="OpenGLErrorEventArgs"/> containing the OpenGL error code.</param>
-		public delegate void ErrorEventHandler(object sender, OpenGLErrorEventArgs e);
-
-		/// <summary>
-		/// Handler for OpenGLControl <see cref="Render"/> events.
-		/// </summary>
-		/// <param name="sender">The control the event was raised for.</param>
-		/// <param name="e">An instance of <see cref="EventArgs"/>.</param>
-		public delegate void RenderEventHandler(object sender, EventArgs e);
-
-		/// <summary>
-		/// Handler for OpenGLControl <see cref="Destroy"/> events. This event is raised on
-		/// destruction of the control, or when calling <see cref="PreDestoryCleanUp"/>;
-		/// </summary>
-		/// <param name="sender">The control the event was raised for.</param>
-		/// <param name="e">An instance of <see cref="EventArgs"/>.</param>
-		public delegate void DestroyEventHandler(object sender, OpenGLDestroyEventArgs e);
-
-		/// <summary>
 		/// This event will be raised, if an OpenGL error occured while rendering.
 		/// </summary>
 		[CategoryAttribute("Action")]
 		[DescriptionAttribute("Action")]
-		public event ErrorEventHandler Error;
+		public event EventHandler<OpenGLErrorEventArgs> Error;
 
 		/// <summary>
 		/// This event will be raised, when the content of the control needs to be refreshed.
 		/// </summary>
 		[CategoryAttribute("Action")]
 		[DescriptionAttribute("Action")]
-		public event RenderEventHandler Render;
+		public event EventHandler<EventArgs> Render;
 
 		/// <summary>
-		/// This event will be raised, when the control gets destroyed.
+		///  This event is raised on destruction of the control, or when calling <see cref="PreDestoryCleanUp"/>;
 		/// </summary>
 		[CategoryAttribute("Action")]
 		[DescriptionAttribute("Action")]
-		public event DestroyEventHandler Destroy;
+		public event EventHandler<OpenGLDestroyEventArgs> Destroy;
 
 		#region Ctor and Initialization
 		/// <summary>
@@ -206,12 +184,12 @@ namespace Win32.WGL
 
 			gl.Viewport(0, 0, Width, Height);
 
-			RenderEventHandler render=Render;
+			EventHandler<EventArgs> render=Render;
 			if(render!=null) render(this, EventArgs.Empty);
 
 			gl.Flush();
 
-			ErrorEventHandler error=Error;
+			EventHandler<OpenGLErrorEventArgs> error=Error;
 			if(error!=null)
 			{
 				glErrorCode errorCode=gl.GetError();
@@ -463,7 +441,7 @@ namespace Win32.WGL
 		{
 			if(RC==HGLRC.Zero) throw new Exception("OpenGLControl still/again in raw state. No pre-destory clean up possible.");
 
-			DestroyEventHandler destroy=Destroy;
+			EventHandler<OpenGLDestroyEventArgs> destroy=Destroy;
 			if(destroy!=null)
 			{
 				bool err=false;

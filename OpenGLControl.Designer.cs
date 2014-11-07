@@ -19,7 +19,7 @@ namespace Win32.WGL
 			{
 				case WM.DESTROY:
 					{
-						DestroyEventHandler destroy=Destroy;
+						EventHandler<OpenGLDestroyEventArgs> destroy=Destroy;
 						if(destroy!=null)
 						{
 							bool err=false;
