@@ -652,7 +652,7 @@ namespace Win32.WGL
 		}
 
 		/// <summary>
-		/// Retrieves swap methode (<see cref="wglPixelFormatAttributeARB.SWAP_METHOD_ARB"/>) of a pixel format.
+		/// Retrieves swapping method (<see cref="wglPixelFormatAttributeARB.SWAP_METHOD_ARB"/>) of a pixel format.
 		/// </summary>
 		/// <param name="hdc">The device context to query informations for.</param>
 		/// <param name="iPixelFormat">The pixel format to query informations for.</param>
