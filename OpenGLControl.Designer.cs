@@ -45,6 +45,8 @@ namespace Win32.WGL
 					Invalidate();
 					break;
 				case WM.ERASEBKGND: return; // Speed up the handling. This is not needed for OpenGL.
+				case WM.INPUT: OnWmInput(new OpenGLMessageEventArgs(m)); break;
+				case WM.INPUT_DEVICE_CHANGE: OnWmInputDeviceChange(new OpenGLMessageEventArgs(m)); break;
 			}
 			base.WndProc(ref m);
 		}

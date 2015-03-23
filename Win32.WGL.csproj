@@ -80,6 +80,7 @@
     </Compile>
     <Compile Include="OpenGLDestroyEventArgs.cs" />
     <Compile Include="OpenGLErrorEventArgs.cs" />
+    <Compile Include="OpenGLMessageEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Structs\GlyphMetricsFloat.cs" />
     <Compile Include="Structs\LayerPlaneDescriptor.cs" />
