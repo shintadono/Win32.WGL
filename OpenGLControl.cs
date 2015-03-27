@@ -67,11 +67,25 @@ namespace Win32.WGL
 		public event EventHandler<EventArgs> Render;
 
 		/// <summary>
-		///  This event is raised on destruction of the control, or when calling <see cref="PreDestoryCleanUp"/>;
+		/// This event is raised on destruction of the control, or when calling <see cref="PreDestoryCleanUp"/>.
 		/// </summary>
 		[CategoryAttribute("Action")]
 		[DescriptionAttribute("Action")]
 		public event EventHandler<OpenGLDestroyEventArgs> Destroy;
+
+		/// <summary>
+		/// This event is raised when WndProc gets an WM_INPUT message.
+		/// </summary>
+		[CategoryAttribute("Action")]
+		[DescriptionAttribute("Action")]
+		public event EventHandler<OpenGLMessageEventArgs> WmInput;
+
+		/// <summary>
+		/// This event is raised when WndProc gets an WM_INPUT_DEVICE_CHANGE message.
+		/// </summary>
+		[CategoryAttribute("Action")]
+		[DescriptionAttribute("Action")]
+		public event EventHandler<OpenGLMessageEventArgs> WmInputDeviceChange;
 
 		#region Ctor and Initialization
 		/// <summary>
@@ -216,6 +230,28 @@ namespace Win32.WGL
 			if((keyData&Keys.KeyCode)==Keys.Down) return true;
 
 			return base.IsInputKey(keyData);
+		}
+
+		/// <summary>
+		/// Inheriting classes can override this method to handle this event.
+		/// Call base.OnWmInput to send this event to any registered event listeners.
+		/// </summary>
+		/// <param name="e">A <see cref="OpenGLMessageEventArgs"/> containing a WM_INPUT message.</param>
+		protected virtual void OnWmInput(OpenGLMessageEventArgs e)
+		{
+			EventHandler<OpenGLMessageEventArgs> evt=WmInput;
+			if(evt!=null) evt(this, e);
+		}
+
+		/// <summary>
+		/// Inheriting classes can override this method to handle this event.
+		/// Call base.OnWmInput to send this event to any registered event listeners.
+		/// </summary>
+		/// <param name="e">A <see cref="OpenGLMessageEventArgs"/> containing a WM_INPUT_DEVICE_CHANGE message.</param>
+		protected virtual void OnWmInputDeviceChange(OpenGLMessageEventArgs e)
+		{
+			EventHandler<OpenGLMessageEventArgs> evt=WmInputDeviceChange;
+			if(evt!=null) evt(this, e);
 		}
 		#endregion
 
