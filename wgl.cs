@@ -539,20 +539,31 @@ namespace Win32.WGL
 		}
 
 		/// <summary>
-		/// Creates a new OpenGL rendering context that, if successful created, will satisfy all the user-specified demands.
+		/// Creates a new OpenGL rendering context that, if successful created, will satisfy all(*) the user-specified demands.
 		/// </summary>
+		/// <remarks>
+		/// * If the extension is not available, the <b>wglCreateContext</b> and if necessary <b>wglShareLists</b> function will be used, to create the context. None of the user-specified attributes will be used in this case.
+		/// </remarks>
 		/// <param name="hDC">The handle to the device context.</param>
 		/// <param name="hShareContext">A handle to a rendering context with which to share objects. Set <b>0</b> (zero) if no sharing is needed.</param>
 		/// <param name="attribList">A null-terminated list of attributes (name-value pairs) for the rendering context.</param>
 		/// <returns>The handle to the rendering context.</returns>
 		public static HGLRC CreateContextAttribsARB(HDC hDC, HGLRC hShareContext, params int[] attribList)
 		{
-			return _CreateContextAttribsARB(hDC, hShareContext, attribList);
+			if(_CreateContextAttribsARB!=null) return _CreateContextAttribsARB(hDC, hShareContext, attribList);
+
+			// Try the antique way.
+			HGLRC ret=CreateContext(hDC);
+			if(hShareContext!=HGLRC.Zero) ShareLists(ret, hShareContext);
+			return ret;
 		}
 
 		/// <summary>
-		/// Creates a new OpenGL rendering context that, if successful created, will satisfy all the user-specified demands.
+		/// Creates a new OpenGL rendering context that, if successful created, will satisfy all(*) the user-specified demands.
 		/// </summary>
+		/// <remarks>
+		/// * If the extension is not available, the <b>wglCreateContext</b> and if necessary <b>wglShareLists</b> function will be used, to create the context. None of the user-specified attributes will be used in this case.
+		/// </remarks>
 		/// <param name="hDC">The handle to the device context.</param>
 		/// <param name="hShareContext">A handle to a rendering context with which to share objects. Set <b>0</b> (zero) if no sharing is needed.</param>
 		/// <param name="pAttribList">A dictionary containing the attributes for the pixel format.</param>
@@ -561,36 +572,45 @@ namespace Win32.WGL
 		{
 			if(pAttribList==null||pAttribList.Count==0) return HGLRC.Zero;
 
-			int[] piAttribList=new int[pAttribList.Count*2+1];
-			int ints=0;
-
-			foreach(wglContextAttributeARB key in pAttribList.Keys)
+			if(_CreateContextAttribsARB!=null)
 			{
-				if(key==0) continue;
-				object value=pAttribList[key];
 
-				if(!(value is int||value is uint||value is bool||value is Enum)) continue;
+				int[] piAttribList=new int[pAttribList.Count*2+1];
+				int ints=0;
 
-				if(value is int) piAttribList[ints+1]=(int)value;
-				else if(value is uint) piAttribList[ints+1]=(int)(uint)value;
-				else if(value is bool) piAttribList[ints+1]=((bool)value)?gl.TRUE:gl.FALSE;
-				else if(value is Enum)
+				foreach(wglContextAttributeARB key in pAttribList.Keys)
 				{
-					Type vType=value.GetType().GetEnumUnderlyingType();
-					if(vType.Equals(typeof(int))) piAttribList[ints+1]=(int)value;
-					else if(vType.Equals(typeof(uint))) piAttribList[ints+1]=(int)(uint)value;
-					else continue;
+					if(key==0) continue;
+					object value=pAttribList[key];
+
+					if(!(value is int||value is uint||value is bool||value is Enum)) continue;
+
+					if(value is int) piAttribList[ints+1]=(int)value;
+					else if(value is uint) piAttribList[ints+1]=(int)(uint)value;
+					else if(value is bool) piAttribList[ints+1]=((bool)value)?gl.TRUE:gl.FALSE;
+					else if(value is Enum)
+					{
+						Type vType=value.GetType().GetEnumUnderlyingType();
+						if(vType.Equals(typeof(int))) piAttribList[ints+1]=(int)value;
+						else if(vType.Equals(typeof(uint))) piAttribList[ints+1]=(int)(uint)value;
+						else continue;
+					}
+
+					piAttribList[ints]=(int)key;
+					ints+=2;
+
+					continue;
 				}
 
-				piAttribList[ints]=(int)key;
-				ints+=2;
+				piAttribList[ints]=0;
 
-				continue;
+				return _CreateContextAttribsARB(hDC, hShareContext, piAttribList);
 			}
 
-			piAttribList[ints]=0;
-
-			return _CreateContextAttribsARB(hDC, hShareContext, piAttribList);
+			// Try the antique way.
+			HGLRC ret=CreateContext(hDC);
+			if(hShareContext!=HGLRC.Zero) ShareLists(ret, hShareContext);
+			return ret;
 		}
 
 		/// <summary>
@@ -1094,8 +1114,27 @@ namespace Win32.WGL
 			Version=gl.GetString(glGetStringParameter.VERSION);
 			Vendor=gl.GetString(glGetStringParameter.VENDOR);
 			Renderer=gl.GetString(glGetStringParameter.RENDERER);
+
+			gl.GetError();
+
+			// This will most likely not work before version 3.0
 			majorVersion=gl.GetInteger(glGetIntegerParameter.MAJOR_VERSION);
 			minorVersion=gl.GetInteger(glGetIntegerParameter.MINOR_VERSION);
+
+			// So, if the enums are not known, try to split up the version string
+			if(gl.GetError()==glErrorCode.INVALID_ENUM)
+			{
+				try
+				{
+					string[] parts=Version.Split('.', ' ');
+					majorVersion=int.Parse(parts[0]);
+					minorVersion=int.Parse(parts[1]);
+				}
+				catch
+				{
+					majorVersion=minorVersion=1; // assume version 1.1
+				}
+			}
 
 			_CreateContextAttribsARB=GetProcAddress<wglCreateContextAttribsARB>("wglCreateContextAttribsARB");
 			_GetExtensionsStringARB=GetProcAddress<wglGetExtensionsStringARB>("wglGetExtensionsStringARB");
@@ -1125,7 +1164,7 @@ namespace Win32.WGL
 			SwapIntervalEXT=GetProcAddress<wglSwapIntervalEXT>("wglSwapIntervalEXT");
 			CopyImageSubDataNV=GetProcAddress<wglCopyImageSubDataNV>("wglCopyImageSubDataNV");
 
-			return _CreateContextAttribsARB!=null&&MakeContextCurrentARB!=null&&ChoosePixelFormatARB_out!=null&&GetPixelFormatAttribivARB_out!=null;
+			return MakeContextCurrentARB!=null&&ChoosePixelFormatARB_out!=null&&GetPixelFormatAttribivARB_out!=null;
 		}
 	}
 }
