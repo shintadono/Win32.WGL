@@ -14,6 +14,8 @@ namespace Win32.WGL
 			SetStyle(ControlStyles.AllPaintingInWmPaint|ControlStyles.Opaque|ControlStyles.ResizeRedraw|ControlStyles.UserPaint, true);
 			SetStyle(ControlStyles.OptimizedDoubleBuffer, false);
 
+			wgl.GetCurrentDC(); // useless wgl command, to force the environment to load opengl32.dll, so that setting the pixel format reaches the opengl driver, too.
+
 			HDC dc=Window.GetDC(Handle);
 			if(dc==HDC.Zero) throw new NotSupportedException("OpenGL not supported. Couldn't get device context.");
 
