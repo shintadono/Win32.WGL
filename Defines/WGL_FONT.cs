@@ -14,7 +14,7 @@ namespace Win32.WGL
 		LINES=0,
 
 		/// <summary>
-		///  Format of the display list will be polygons.
+		/// Format of the display list will be polygons.
 		/// </summary>
 		POLYGONS=1,
 	}
