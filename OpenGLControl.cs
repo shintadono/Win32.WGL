@@ -278,11 +278,13 @@ namespace Win32.WGL
 			return pixelFormatAttributes;
 		}
 
-		static Dictionary<wglContextAttributeARB, object> MakeContextAttributes(int minMajorVerion=4, int minMinorVersion=4)
+		static Dictionary<wglContextAttributeARB, object> MakeContextAttributes(int minMajorVerion = 4, int minMinorVersion = 4, bool compatibiltyProfile = false)
 		{
-			Dictionary<wglContextAttributeARB, object> contextAttributes=new Dictionary<wglContextAttributeARB, object>();
+			Dictionary<wglContextAttributeARB, object> contextAttributes = new Dictionary<wglContextAttributeARB, object>();
 			contextAttributes.Add(wglContextAttributeARB.CONTEXT_MAJOR_VERSION_ARB, minMajorVerion);
 			contextAttributes.Add(wglContextAttributeARB.CONTEXT_MINOR_VERSION_ARB, minMinorVersion);
+			if (compatibiltyProfile && (minMajorVerion > 3 || (minMajorVerion == 3 && minMinorVersion >= 2)))
+				contextAttributes.Add(wglContextAttributeARB.CONTEXT_PROFILE_MASK_ARB, wglContextProfileMaskARB.CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB);
 			return contextAttributes;
 		}
 
@@ -294,12 +296,13 @@ namespace Win32.WGL
 		/// <param name="stereo">A <see cref="DontCareBool"/> specifying the need for Stereo support.</param>
 		/// <param name="minMajorVerion">The minimal major OpenGL version the rendering context shall support.</param>
 		/// <param name="minMinorVersion">The minimal minor OpenGL version the rendering context shall support.</param>
+		/// <param name="compatibiltyProfile">For versions 3.2 and higher, you can set this <b>true</b> to create a context with OpenGL compatibilty-profile.</param>
 		/// <returns><b>true</b> if control was successfully set up, otherwise <b>false</b> is returned.</returns>
 		public virtual bool Setup(DontCareBool depth24Bits=DontCareBool.DONT_CARE, DontCareBool stencil8Bits=DontCareBool.DONT_CARE, DontCareBool stereo=DontCareBool.DONT_CARE,
-			int minMajorVerion=4, int minMinorVersion=4)
+			int minMajorVerion=4, int minMinorVersion=4, bool compatibiltyProfile=false)
 		{
 			if(RC!=HGLRC.Zero) return true; // already done
-			return Setup(HGLRC.Zero, MakePixelFormatAttributes(depth24Bits, stencil8Bits, stereo), MakeContextAttributes(minMajorVerion, minMinorVersion));
+			return Setup(HGLRC.Zero, MakePixelFormatAttributes(depth24Bits, stencil8Bits, stereo), MakeContextAttributes(minMajorVerion, minMinorVersion, compatibiltyProfile));
 		}
 
 		/// <summary>
